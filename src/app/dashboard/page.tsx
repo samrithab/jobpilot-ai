@@ -1,7 +1,21 @@
 import Navbar from "@/components/Navbar";
 import StatCard from "@/components/StatCard";
+import { supabase } from "@/lib/supabase";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const { data: jobs, error } = await supabase
+    .from("jobs")
+    .select("*");
+
+  if (error) {
+    return <p className="p-8 text-red-500">Error: {error.message}</p>;
+  }
+
+  const totalJobs = jobs.length;
+  const appliedJobs = jobs.filter((job) => job.status === "Applied").length;
+  const interviewingJobs = jobs.filter((job) => job.status === "Interviewing").length;
+  const offers = jobs.filter((job) => job.status === "Offer").length;
+
   return (
     <>
       <Navbar />
@@ -12,37 +26,11 @@ export default function DashboardPage() {
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard
-            title="Total Jobs"
-            value="24"
-          />
-
-          <StatCard
-            title="Applied"
-            value="10"
-          />
-
-          <StatCard
-            title="Interviewing"
-            value="5"
-          />
-
-          <StatCard
-            title="Offers"
-            value="1"
-          />
+          <StatCard title="Total Jobs" value={totalJobs.toString()} />
+          <StatCard title="Applied" value={appliedJobs.toString()} />
+          <StatCard title="Interviewing" value={interviewingJobs.toString()} />
+          <StatCard title="Offers" value={offers.toString()} />
         </div>
-
-        <div className="mt-8 bg-white rounded-xl p-6 shadow">
-            <h2 className="text-xl font-semibold mb-4 text-slate-900">
-                Recent Applications
-            </h2>
-
-            <p className="text-slate-500">
-                No applications yet.
-            </p>
-        </div>
-
       </main>
     </>
   );
