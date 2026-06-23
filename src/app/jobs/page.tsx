@@ -41,9 +41,11 @@ export default async function JobsPage() {
 
             <tbody>
               {jobs.map((job) => (
-                <tr key={job.id} className="border-b">
+                <tr key={job.id} className="border-b hover:bg-slate-50">
                   <td className="p-4 text-slate-900 font-medium">
-                    {job.company}
+                    <a href={`/jobs/${job.id}`} className="text-blue-600 hover:underline">
+                        {job.company}
+                    </a>
                   </td>
                   <td className="p-4 text-slate-700">
                     {job.position}
