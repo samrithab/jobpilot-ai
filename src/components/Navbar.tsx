@@ -10,6 +10,7 @@ export default function Navbar() {
         <a href="/dashboard">Dashboard</a>
         <a href="/jobs">Jobs</a>
         <a href="/jobs/new">Add Job</a>
+        <a href="/profile">Profile</a>
       </div>
     </nav>
   );
