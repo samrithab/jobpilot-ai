@@ -1,3 +1,6 @@
+JobPilot AI is designed to optimize resume presentation, not fabricate qualifications. The platform identifies evidence gaps, suggests honest improvements, and recommends skills to learn when experience is absent.
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
