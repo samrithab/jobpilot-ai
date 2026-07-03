@@ -10,6 +10,7 @@ export default function NewJobPage() {
 
   const [company, setCompany] = useState("");
   const [position, setPosition] = useState("");
+  const [jobUrl, setJobUrl] = useState("");
   const [status, setStatus] = useState("Saved");
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
@@ -22,6 +23,7 @@ export default function NewJobPage() {
     const { error } = await supabase.from("jobs").insert({
       company,
       position,
+      job_url: jobUrl,
       status,
       location,
       notes,
@@ -34,7 +36,7 @@ export default function NewJobPage() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push("/jobs");
   }
 
   return (
@@ -43,36 +45,37 @@ export default function NewJobPage() {
 
       <main className="min-h-screen bg-slate-100 p-8">
         <div className="max-w-2xl mx-auto bg-white rounded-xl shadow p-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-6">
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">
             Add New Job
           </h1>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Company
-              </label>
-              <input
-                value={company}
-                onChange={(event) => setCompany(event.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-4 py-2 text-slate-900"
-                placeholder="Google"
-                required
-              />
-            </div>
+          <p className="text-slate-600 mb-6">
+            Save a job opportunity, then analyze it against your master resume.
+          </p>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Position
-              </label>
-              <input
-                value={position}
-                onChange={(event) => setPosition(event.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-4 py-2 text-slate-900"
-                placeholder="Software Engineer Intern"
-                required
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Company"
+              value={company}
+              onChange={setCompany}
+              placeholder="Stripe"
+              required
+            />
+
+            <Input
+              label="Position"
+              value={position}
+              onChange={setPosition}
+              placeholder="Full Stack Software Engineer"
+              required
+            />
+
+            <Input
+              label="Job URL"
+              value={jobUrl}
+              onChange={setJobUrl}
+              placeholder="https://company.com/careers/job-id"
+            />
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -84,24 +87,22 @@ export default function NewJobPage() {
                 className="w-full border border-slate-300 rounded-lg px-4 py-2 text-slate-900"
               >
                 <option>Saved</option>
+                <option>Tailored</option>
                 <option>Applied</option>
-                <option>Interviewing</option>
+                <option>Recruiter Screen</option>
+                <option>Technical Interview</option>
+                <option>Final Interview</option>
                 <option>Offer</option>
                 <option>Rejected</option>
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Location
-              </label>
-              <input
-                value={location}
-                onChange={(event) => setLocation(event.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-4 py-2 text-slate-900"
-                placeholder="Remote"
-              />
-            </div>
+            <Input
+              label="Location"
+              value={location}
+              onChange={setLocation}
+              placeholder="Toronto / Remote"
+            />
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -127,5 +128,35 @@ export default function NewJobPage() {
         </div>
       </main>
     </>
+  );
+}
+
+function Input({
+  label,
+  value,
+  onChange,
+  placeholder,
+  required,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  required?: boolean;
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-slate-700 mb-1">
+        {label}
+      </label>
+
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        required={required}
+        className="w-full border border-slate-300 rounded-lg px-4 py-2 text-slate-900 placeholder:text-slate-400"
+      />
+    </div>
   );
 }
