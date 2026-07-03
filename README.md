@@ -87,6 +87,90 @@ Instead of generating fake experience, the platform helps users understand:
 - How to improve resume positioning honestly
 - What skills to learn next
 
+## Screenshots
+
+![Landing Page](./screenshots/landing.png)
+![Dashboard](./screenshots/dashboard.png)
+![Jobs Page](./screenshots/jobs.png)
+![Job Details](./screenshots/job-details.png)
+![AI Analysis](./screenshots/ai-analysis.png)
+
+
+## Local Setup
+
+Clone the repository:
+
+git clone https://github.com/samrithab/jobpilot-ai.git
+cd jobpilot-ai
+
+Install dependencies:
+
+npm install
+
+Create a .env.local file:
+
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+OPENAI_API_KEY=your_openai_api_key
+
+Run the development server:
+
+npm run dev
+
+Open:
+
+http://localhost:3000
+Deployment
+
+The application is deployed on Vercel.
+
+Environment variables required in Vercel:
+
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+- OPENAI_API_KEY
+
+## Future Roadmap
+
+Phase 2: AWS Architecture
+
+Planned AWS extensions:
+
+AWS Lambda for serverless AI processing
+AWS Cognito for authentication
+S3 for resume uploads
+CloudWatch for observability
+EventBridge for asynchronous AI workflows
+Possible CI/CD pipeline with GitHub Actions
+
+Future architecture:
+
+Next.js Frontend
+      ↓
+AWS Cognito
+      ↓
+API Route / Lambda
+      ↓
+OpenAI API
+      ↓
+Supabase / PostgreSQL
+      ↓
+S3 Resume Storage
+Resume Positioning
+
+## This project demonstrates:
+
+Full-stack product development
+Modern React and Next.js architecture
+TypeScript engineering
+PostgreSQL data modeling
+Supabase integration
+AI API integration
+Prompt engineering
+Structured JSON AI responses
+Production deployment
+Product thinking around responsible AI use
+
 ## Architecture
 
 ```text
@@ -146,88 +230,8 @@ resume_suggestions jsonb
 skills_to_learn jsonb
 interview_questions jsonb
 created_at timestamp
+```
 
-Screenshots
-
-![Landing Page](./screenshots/landing.png)
-![Dashboard](./screenshots/dashboard.png)
-![Jobs Page](./screenshots/jobs.png)
-![Job Details](./screenshots/job-details.png)
-![AI Analysis](./screenshots/ai-analysis.png)
-
-Local Setup
-
-Clone the repository:
-
-git clone https://github.com/samrithab/jobpilot-ai.git
-cd jobpilot-ai
-
-Install dependencies:
-
-npm install
-
-Create a .env.local file:
-
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-OPENAI_API_KEY=your_openai_api_key
-
-Run the development server:
-
-npm run dev
-
-Open:
-
-http://localhost:3000
-Deployment
-
-The application is deployed on Vercel.
-
-Environment variables required in Vercel:
-
-NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY
-OPENAI_API_KEY
-
-Future Roadmap
-Phase 2: AWS Architecture
-
-Planned AWS extensions:
-
-AWS Lambda for serverless AI processing
-AWS Cognito for authentication
-S3 for resume uploads
-CloudWatch for observability
-EventBridge for asynchronous AI workflows
-Possible CI/CD pipeline with GitHub Actions
-
-Future architecture:
-
-Next.js Frontend
-      ↓
-AWS Cognito
-      ↓
-API Route / Lambda
-      ↓
-OpenAI API
-      ↓
-Supabase / PostgreSQL
-      ↓
-S3 Resume Storage
-Resume Positioning
-
-This project demonstrates:
-
-Full-stack product development
-Modern React and Next.js architecture
-TypeScript engineering
-PostgreSQL data modeling
-Supabase integration
-AI API integration
-Prompt engineering
-Structured JSON AI responses
-Production deployment
-Product thinking around responsible AI use
-Author
+## Author
 
 Built by Samritha B.
