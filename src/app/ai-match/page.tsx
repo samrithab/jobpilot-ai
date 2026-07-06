@@ -3,6 +3,7 @@
 import Navbar from "@/components/Navbar";
 import { supabase } from "@/lib/supabase";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function AIMatchPage() {
   const [jobDescription, setJobDescription] = useState("");
@@ -20,7 +21,7 @@ export default function AIMatchPage() {
       .single();
 
     if (error || !profile) {
-      alert("Please save your resume profile first.");
+      toast.error("Please save your resume profile first.");
       setIsLoading(false);
       return;
     }
@@ -43,7 +44,7 @@ export default function AIMatchPage() {
     setIsLoading(false);
 
     if (!response.ok) {
-      alert(data.error || "Something went wrong.");
+      toast.error(data.error || "Something went wrong.");
       return;
     }
 

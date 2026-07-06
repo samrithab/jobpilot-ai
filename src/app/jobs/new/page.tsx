@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { supabase } from "@/lib/supabase";
+import { getCurrentUser } from "@/lib/auth";
+import { toast } from "sonner";
 
 export default function NewJobPage() {
   const router = useRouter();
@@ -20,7 +22,15 @@ export default function NewJobPage() {
     event.preventDefault();
     setIsSaving(true);
 
+    const user = await getCurrentUser();
+
+    if (!user) {
+      router.push("/auth");
+      return;
+    }
+
     const { error } = await supabase.from("jobs").insert({
+      user_id: user.id,
       company,
       position,
       job_url: jobUrl,
@@ -32,7 +42,7 @@ export default function NewJobPage() {
     setIsSaving(false);
 
     if (error) {
-      alert(error.message);
+      toast.error(error.message);
       return;
     }
 
@@ -54,33 +64,12 @@ export default function NewJobPage() {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Company"
-              value={company}
-              onChange={setCompany}
-              placeholder="Stripe"
-              required
-            />
-
-            <Input
-              label="Position"
-              value={position}
-              onChange={setPosition}
-              placeholder="Full Stack Software Engineer"
-              required
-            />
-
-            <Input
-              label="Job URL"
-              value={jobUrl}
-              onChange={setJobUrl}
-              placeholder="https://company.com/careers/job-id"
-            />
+            <Input label="Company" value={company} onChange={setCompany} placeholder="Stripe" required />
+            <Input label="Position" value={position} onChange={setPosition} placeholder="Full Stack Software Engineer" required />
+            <Input label="Job URL" value={jobUrl} onChange={setJobUrl} placeholder="https://company.com/careers/job-id" />
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Status
-              </label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
               <select
                 value={status}
                 onChange={(event) => setStatus(event.target.value)}
@@ -97,17 +86,10 @@ export default function NewJobPage() {
               </select>
             </div>
 
-            <Input
-              label="Location"
-              value={location}
-              onChange={setLocation}
-              placeholder="Toronto / Remote"
-            />
+            <Input label="Location" value={location} onChange={setLocation} placeholder="Toronto / Remote" />
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Notes
-              </label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Notes</label>
               <textarea
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
@@ -146,10 +128,7 @@ function Input({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1">
-        {label}
-      </label>
-
+      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}

@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { supabase } from "@/lib/supabase";
+import { getCurrentUser } from "@/lib/auth";
 import { MatchResult } from "@/types/ai";
+import { toast } from "sonner";
 
 type Tab = "details" | "analysis";
 
@@ -13,6 +15,7 @@ export default function JobDetailsPage() {
   const router = useRouter();
   const jobId = params.id as string;
 
+  const [userId, setUserId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("details");
 
   const [company, setCompany] = useState("");
@@ -37,15 +40,25 @@ export default function JobDetailsPage() {
 
   useEffect(() => {
     async function fetchJob() {
+      const user = await getCurrentUser();
+
+      if (!user) {
+        router.push("/auth");
+        return;
+      }
+
+      setUserId(user.id);
+
       const { data, error } = await supabase
         .from("jobs")
         .select("*")
         .eq("id", jobId)
+        .eq("user_id", user.id)
         .single();
 
       if (error) {
-        alert(error.message);
-        setIsLoading(false);
+        toast.error("Job not found or you do not have access.");
+        router.push("/jobs");
         return;
       }
 
@@ -68,10 +81,16 @@ export default function JobDetailsPage() {
     }
 
     fetchJob();
-  }, [jobId]);
+  }, [jobId, router]);
 
   async function handleUpdate(event: React.FormEvent) {
     event.preventDefault();
+
+    if (!userId) {
+      router.push("/auth");
+      return;
+    }
+
     setIsSaving(true);
 
     const { error } = await supabase
@@ -85,100 +104,122 @@ export default function JobDetailsPage() {
         notes,
         job_description: jobDescription,
       })
-      .eq("id", jobId);
+      .eq("id", jobId)
+      .eq("user_id", userId);
 
     setIsSaving(false);
 
     if (error) {
-      alert(error.message);
+      toast.error(error.message);
       return;
     }
 
-    alert("Job saved!");
+    toast.success("Job saved!");
   }
 
   async function handleAnalyzeJob() {
+    if (!userId) {
+      router.push("/auth");
+      return;
+    }
+
     if (!jobDescription.trim()) {
-      alert("Please paste the job description first.");
+      toast.error("Please paste the job description first.");
       return;
     }
 
     setIsAnalyzing(true);
     setActiveTab("analysis");
 
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("*")
-      .limit(1)
-      .single();
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .limit(1)
+        .single();
 
-    if (profileError || !profile) {
-      alert("Please save your resume profile first.");
+      if (profileError || !profile) {
+        toast.error("Please save your resume profile first.");
+        return;
+      }
+
+      if (!profile.resume_text) {
+        toast.error("Please upload your resume PDF from the Profile page first.");
+        return;
+      }
+
+      const response = await fetch("/api/ai-match", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resumeText: profile.resume_text,
+          skills: profile.skills,
+          targetRole: profile.target_role,
+          jobDescription,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error || "Something went wrong.");
+        return;
+      }
+
+      const result: MatchResult = data.result;
+
+      const { error: updateError } = await supabase
+        .from("jobs")
+        .update({
+          job_description: jobDescription,
+          match_score: result.matchScore,
+          strengths: result.strengths,
+          partial_evidence: result.partialEvidence,
+          evidence_gaps: result.evidenceGaps,
+          resume_suggestions: result.resumeSuggestions,
+          skills_to_learn: result.skillsToLearn,
+          interview_questions: result.interviewQuestions,
+        })
+        .eq("id", jobId)
+        .eq("user_id", userId);
+
+      if (updateError) {
+        toast.error(updateError.message);
+        return;
+      }
+
+      setMatchScore(result.matchScore);
+      setStrengths(result.strengths);
+      setPartialEvidence(result.partialEvidence);
+      setEvidenceGaps(result.evidenceGaps);
+      setResumeSuggestions(result.resumeSuggestions);
+      setSkillsToLearn(result.skillsToLearn);
+      setInterviewQuestions(result.interviewQuestions);
+    } finally {
       setIsAnalyzing(false);
-      return;
     }
-
-    const response = await fetch("/api/ai-match", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        resumeText: profile.resume_text,
-        skills: profile.skills,
-        targetRole: profile.target_role,
-        jobDescription,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      alert(data.error || "Something went wrong.");
-      setIsAnalyzing(false);
-      return;
-    }
-
-    const result: MatchResult = data.result;
-
-    const { error: updateError } = await supabase
-      .from("jobs")
-      .update({
-        job_description: jobDescription,
-        match_score: result.matchScore,
-        strengths: result.strengths,
-        partial_evidence: result.partialEvidence,
-        evidence_gaps: result.evidenceGaps,
-        resume_suggestions: result.resumeSuggestions,
-        skills_to_learn: result.skillsToLearn,
-        interview_questions: result.interviewQuestions,
-      })
-      .eq("id", jobId);
-
-    setIsAnalyzing(false);
-
-    if (updateError) {
-      alert(updateError.message);
-      return;
-    }
-
-    setMatchScore(result.matchScore);
-    setStrengths(result.strengths);
-    setPartialEvidence(result.partialEvidence);
-    setEvidenceGaps(result.evidenceGaps);
-    setResumeSuggestions(result.resumeSuggestions);
-    setSkillsToLearn(result.skillsToLearn);
-    setInterviewQuestions(result.interviewQuestions);
   }
 
   async function handleDelete() {
+    if (!userId) {
+      router.push("/auth");
+      return;
+    }
+
     const confirmed = confirm("Are you sure you want to delete this job?");
     if (!confirmed) return;
 
-    const { error } = await supabase.from("jobs").delete().eq("id", jobId);
+    const { error } = await supabase
+      .from("jobs")
+      .delete()
+      .eq("id", jobId)
+      .eq("user_id", userId);
 
     if (error) {
-      alert(error.message);
+      toast.error(error.message);
       return;
     }
 
@@ -289,20 +330,7 @@ export default function JobDetailsPage() {
 
             {activeTab === "analysis" && (
               <div>
-                {isAnalyzing && (
-                  <div>
-                    <h2 className="text-2xl font-bold text-slate-900 mb-4">
-                      Analyzing your resume...
-                    </h2>
-
-                    <div className="space-y-2 text-slate-600">
-                      <p>✓ Reading your master resume</p>
-                      <p>✓ Comparing against the job description</p>
-                      <p>✓ Finding strong evidence and gaps</p>
-                      <p>✓ Generating interview prep</p>
-                    </div>
-                  </div>
-                )}
+                {isAnalyzing && <AnalyzingState />}
 
                 {!isAnalyzing && matchScore === null && (
                   <div className="text-center py-10">
@@ -364,6 +392,26 @@ export default function JobDetailsPage() {
         </div>
       </main>
     </>
+  );
+}
+
+function AnalyzingState() {
+  return (
+    <div className="rounded-xl border border-blue-100 bg-blue-50 p-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600" />
+        <h2 className="text-2xl font-bold text-slate-900">
+          Analyzing your resume...
+        </h2>
+      </div>
+
+      <div className="space-y-3 text-slate-700">
+        <p>✓ Reading your uploaded resume</p>
+        <p>✓ Comparing against the job description</p>
+        <p>✓ Finding strong evidence and gaps</p>
+        <p>✓ Generating interview prep</p>
+      </div>
+    </div>
   );
 }
 

@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# AWS Lambda build artifacts
+aws/analyze-job/node_modules/
+aws/analyze-job/dist/
+aws/analyze-job/lambda.zip

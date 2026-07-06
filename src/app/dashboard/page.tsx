@@ -1,12 +1,54 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import StatCard from "@/components/StatCard";
 import { supabase } from "@/lib/supabase";
+import { getCurrentUser } from "@/lib/auth";
+import { toast } from "sonner";
 
-export default async function DashboardPage() {
-  const { data: jobs, error } = await supabase.from("jobs").select("*");
+export default function DashboardPage() {
+  const router = useRouter();
 
-  if (error) {
-    return <p className="p-8 text-red-500">Error: {error.message}</p>;
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadDashboard() {
+      const user = await getCurrentUser();
+
+      if (!user) {
+        router.push("/auth");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("jobs")
+        .select("*")
+        .eq("user_id", user.id);
+
+      if (error) {
+        toast.error(error.message);
+      } else {
+        setJobs(data || []);
+      }
+
+      setIsLoading(false);
+    }
+
+    loadDashboard();
+  }, [router]);
+
+  if (isLoading) {
+    return (
+      <>
+        <Navbar />
+        <main className="min-h-screen bg-slate-100 p-8">
+          <p className="text-slate-700">Loading dashboard...</p>
+        </main>
+      </>
+    );
   }
 
   const totalJobs = jobs.length;
