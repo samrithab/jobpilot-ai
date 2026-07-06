@@ -194,7 +194,7 @@ export default function ProfilePage() {
                 className="w-full border border-slate-300 rounded-lg p-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Samritha Balamoni"
+                placeholder="John Doe"
               />
             </div>
 
