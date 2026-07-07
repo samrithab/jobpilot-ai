@@ -1,237 +1,271 @@
 # JobPilot AI
 
-JobPilot AI is an AI-powered career intelligence platform that helps software engineers track job applications, analyze resume-to-job fit, identify evidence gaps, and prepare for interviews.
+An AI-powered career intelligence platform that helps software engineers organize job applications, compare resumes against job descriptions, identify evidence gaps, and prepare for interviews.
 
-The project is designed as a production-quality full-stack application, not a basic CRUD portfolio app.
+Built as a modern full-stack application to demonstrate production-ready architecture using React, Next.js, AWS, Supabase, OpenAI, and serverless computing.
 
-## Live Demo
+---
 
-jobpilot-ai-rouge.vercel.app
+## Demo
+
+Live Demo:
+https://jobpilot-ai-rouge.vercel.app
+
+---
+
+## Features
+
+### Authentication
+
+- Secure email/password authentication
+- Supabase Authentication
+- Session persistence
+- Protected application pages
+
+### Resume Management
+
+- Upload PDF resumes
+- Automatic resume text extraction
+- Resume storage in Amazon S3
+- Previous resume automatically replaced when uploading a new version
+
+### AI Resume Analysis
+
+Compare your resume against any job posting and receive:
+
+- Match score
+- Strong evidence
+- Partial evidence
+- Missing evidence
+- Resume improvement suggestions
+- Skills to learn
+- Interview questions
+
+### Job Tracker
+
+- Save job postings
+- Track application status
+- Store notes
+- Manage interview pipeline
+
+### Dashboard
+
+View:
+
+- Total jobs
+- Applications
+- Interviews
+- Offers
+- Average AI match score
+- Highest matching opportunity
+- Resume gap statistics
+
+---
+
+# Architecture
+
+```
+                React / Next.js
+                      │
+          ┌───────────┴───────────┐
+          │                       │
+    Supabase Auth          Next.js API Routes
+          │                       │
+          │                       │
+      PostgreSQL             AWS Lambda
+          │                       │
+          │                 OpenAI Responses API
+          │                       │
+          └───────────┬───────────┘
+                      │
+                 Amazon S3
+              Resume Storage
+```
+
+---
 
 ## Tech Stack
 
 ### Frontend
-- Next.js App Router
+
+- Next.js 16
 - React
 - TypeScript
 - Tailwind CSS
 
 ### Backend
-- Next.js Route Handlers
-- OpenAI API
+
+- Next.js API Routes
+- AWS Lambda
+- Node.js
 
 ### Database
-- Supabase
-- PostgreSQL
+
+- Supabase PostgreSQL
+
+### Authentication
+
+- Supabase Auth
+
+### AI
+
+- OpenAI Responses API
+
+### Cloud
+
+- Amazon S3
+- AWS Lambda
+- AWS Secrets Manager
 
 ### Deployment
+
 - Vercel
 
-## Features
+---
 
-### Job Tracking
-Users can create, edit, delete, and track job applications through statuses such as:
+# AWS Services Used
 
-- Saved
-- Tailored
-- Applied
-- Recruiter Screen
-- Technical Interview
-- Offer
-- Rejected
+## AWS Lambda
 
-### Resume Profile
-Users can save a master resume profile including:
+AI analysis is executed inside an AWS Lambda function rather than directly inside the web application.
 
-- Name
-- Target role
-- Skills
-- Resume text
+Benefits:
 
-### AI Job Fit Analysis
-For each job, users can paste a job description and generate an AI analysis comparing the role against their master resume.
+- Serverless compute
+- Isolated AI execution
+- Easily scalable
+- Keeps OpenAI logic outside the frontend
 
-The AI returns:
+---
 
-- Match score
-- Strong evidence
-- Partial evidence
-- Evidence gaps
-- Honest resume optimization suggestions
-- Skills to learn
-- Interview questions
+## Amazon S3
 
-The system is intentionally designed to avoid fabricating experience. If a skill is not supported by the resume, it is labeled as an evidence gap or learning opportunity.
+Uploaded resumes are securely stored inside Amazon S3.
 
-### Dashboard Analytics
-The dashboard displays:
+Each uploaded resume:
 
-- Total jobs
-- Applied jobs
-- Interviewing jobs
-- Offers
-- Average fit score
-- Highest match
-- Jobs needing resume work
-- Tailored applications
+- stored as a PDF
+- automatically replaces the previous version
+- remains separate from extracted resume text
 
-## Product Philosophy
+---
 
-JobPilot AI is built around evidence-based resume optimization.
+## AWS Secrets Manager
 
-Instead of generating fake experience, the platform helps users understand:
+The OpenAI API key is stored securely in AWS Secrets Manager instead of hardcoded environment variables.
 
-- What their resume already proves
-- Where their experience partially aligns
-- Which requirements are missing
-- How to improve resume positioning honestly
-- What skills to learn next
+The Lambda retrieves the key securely during execution.
 
-## Screenshots
+---
 
-![Landing Page](./screenshots/landing.png)
-![Dashboard](./screenshots/dashboard.png)
-![Jobs Page](./screenshots/jobs.png)
-![Job Details](./screenshots/job-details.png)
-![AI Analysis](./screenshots/ai-analysis.png)
+# Project Structure
 
+```
+src/
+ ├── app/
+ │    ├── auth/
+ │    ├── dashboard/
+ │    ├── jobs/
+ │    ├── profile/
+ │    ├── api/
+ │    │      └── resume-upload/
+ │
+ ├── components/
+ ├── lib/
 
-## Local Setup
-
-Clone the repository:
-
-git clone https://github.com/samrithab/jobpilot-ai.git
-cd jobpilot-ai
-
-Install dependencies:
-
-npm install
-
-Create a .env.local file:
-
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-OPENAI_API_KEY=your_openai_api_key
-
-Run the development server:
-
-npm run dev
-
-Open:
-
-http://localhost:3000
-Deployment
-
-The application is deployed on Vercel.
-
-Environment variables required in Vercel:
-
-- NEXT_PUBLIC_SUPABASE_URL
-- NEXT_PUBLIC_SUPABASE_ANON_KEY
-- OPENAI_API_KEY
-
-## Future Roadmap
-
-Phase 2: AWS Architecture
-
-Planned AWS extensions:
-
-AWS Lambda for serverless AI processing
-AWS Cognito for authentication
-S3 for resume uploads
-CloudWatch for observability
-EventBridge for asynchronous AI workflows
-Possible CI/CD pipeline with GitHub Actions
-
-Future architecture:
-
-Next.js Frontend
-      ↓
-AWS Cognito
-      ↓
-API Route / Lambda
-      ↓
-OpenAI API
-      ↓
-Supabase / PostgreSQL
-      ↓
-S3 Resume Storage
-Resume Positioning
-
-## This project demonstrates:
-
-Full-stack product development
-Modern React and Next.js architecture
-TypeScript engineering
-PostgreSQL data modeling
-Supabase integration
-AI API integration
-Prompt engineering
-Structured JSON AI responses
-Production deployment
-Product thinking around responsible AI use
-
-## Architecture
-
-```text
-User
- ↓
-Next.js Frontend
- ↓
-Next.js Route Handler
- ↓
-OpenAI API
- ↓
-Supabase / PostgreSQL
- ↓
-Persistent Job + AI Analysis Data
-
-
-AI Flow
-
-Master Resume + Skills + Target Role
-              ↓
-        Job Description
-              ↓
-       OpenAI Analysis
-              ↓
-Structured JSON Response
-              ↓
-Saved to PostgreSQL
-              ↓
-Displayed in Job Details + Dashboard
-
-Database Schema
-
-profiles
-
-id uuid primary key
-name text
-target_role text
-skills text
-resume_text text
-created_at timestamp
-
-jobs
-
-id uuid primary key
-company text
-position text
-job_url text
-status text
-location text
-notes text
-job_description text
-match_score integer
-strengths jsonb
-partial_evidence jsonb
-evidence_gaps jsonb
-resume_suggestions jsonb
-skills_to_learn jsonb
-interview_questions jsonb
-created_at timestamp
+aws/
+ └── analyze-job/
+      ├── handler.ts
+      ├── openai.ts
+      ├── prompts.ts
+      ├── secrets.ts
+      └── types.ts
 ```
 
-## Author
+---
 
-Built by Samritha B.
+# Local Development
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Run development server
+
+```bash
+npm run dev
+```
+
+Build production
+
+```bash
+npm run build
+```
+
+---
+
+# Environment Variables
+
+### Frontend
+
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+AWS_REGION=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+S3_RESUME_BUCKET=
+ANALYZE_LAMBDA_NAME=
+```
+
+### AWS Secrets Manager
+
+```
+OPENAI_API_KEY
+```
+
+---
+
+# Future Improvements
+
+- Resume version history
+- Chrome extension to import jobs directly from LinkedIn
+- AI-generated cover letters
+- Resume tailoring assistant
+- Analytics dashboard
+- Email reminders for follow-ups
+- Interview calendar integration
+- Multi-resume support
+- Recruiter CRM
+- Job search insights
+
+---
+
+# Why I Built This
+
+Most job trackers only organize applications.
+
+JobPilot AI focuses on improving the quality of applications by using AI to identify resume evidence gaps, recommend improvements, and help engineers prepare for interviews while keeping resumes securely stored in AWS.
+
+The project was also an opportunity to build a production-style application that combines modern frontend development with cloud infrastructure and serverless architecture.
+
+---
+
+# Skills Demonstrated
+
+- React
+- Next.js
+- TypeScript
+- Tailwind CSS
+- AWS Lambda
+- Amazon S3
+- AWS Secrets Manager
+- Supabase Authentication
+- PostgreSQL
+- REST APIs
+- OpenAI API Integration
+- Serverless Architecture
+- Cloud Storage
+- Full Stack Development
