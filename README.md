@@ -8,7 +8,8 @@ Built as a modern full-stack application to demonstrate production-ready archite
 
 ## Demo
 
-Live Demo:
+Check out the demo: https://youtu.be/bDRZiAUhdf4
+
 https://jobpilot-ai-rouge.vercel.app
 
 ---
